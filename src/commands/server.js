@@ -5,12 +5,12 @@ const path = require('path');
 const fs = require('fs');
 const pty = require('node-pty');
 
-const processModule = require('@waxory/sheh/getshell');
-const shellName = processModule.getShell();
+const process_module = require('@waxory/sheh/getshell');
+const shell_name = process_module.getShell();
 
-const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
+const guid = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
-const MIME_TYPES = {
+const mime_types = {
     '.html': 'text/html; charset=utf-8',
     '.js': 'application/javascript; charset=utf-8',
     '.css': 'text/css; charset=utf-8',
@@ -21,43 +21,61 @@ const MIME_TYPES = {
     '.ico': 'image/x-icon'
 };
 
-module.exports = function(context, args) {
+module.exports = function(context, arguments_list) {
 
-    const PUBLIC_DIR = path.resolve(context.root, "public");
+    const public_directory = path.resolve(context.root, "public");
 
-    function serveStatic(req, res) {
-        const reqUrl = req.url.split('?')[0];
-        let safePath = reqUrl === '/' ? '/index.html' : reqUrl;
+    function serve_static(request, response) {
+        const request_url = request.url.split('?')[0];
+        let safe_path = "";
 
-        const relativePath = path.normalize(safePath).replace(/^(\/|\\)+/, '');
-        const filePath = path.join(PUBLIC_DIR, relativePath);
+        if (request_url === '/') {
+            safe_path = '/index.html';
+        } else {
+            safe_path = request_url;
+        }
 
-        if (!filePath.startsWith(PUBLIC_DIR)) {
-            res.writeHead(403);
-            res.end('403 Forbidden');
+        const relative_path = path.normalize(safe_path).replace(/^(\/|\\)+/, '');
+        const file_path = path.join(public_directory, relative_path);
+
+        if (!file_path.startsWith(public_directory)) {
+            response.writeHead(403);
+            response.end('403 Forbidden');
             return;
         }
 
-        fs.stat(filePath, function(err, stats) {
-            if (err || !stats.isFile()) {
-                res.writeHead(404);
-                res.end('404 Not Found');
+        fs.stat(file_path, function(error, status) {
+            if (error) {
+                response.writeHead(404);
+                response.end('404 Not Found');
                 return;
             }
 
-            const ext = path.extname(filePath).toLowerCase();
-            const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+            if (!status.isFile()) {
+                response.writeHead(404);
+                response.end('404 Not Found');
+                return;
+            }
 
-            res.writeHead(200, {
-                'Content-Type': contentType,
-                'Content-Length': stats.size
+            const extension = path.extname(file_path).toLowerCase();
+            let content_type = "";
+
+            if (mime_types[extension]) {
+                content_type = mime_types[extension];
+            } else {
+                content_type = 'application/octet-stream';
+            }
+
+            response.writeHead(200, {
+                'Content-Type': content_type,
+                'Content-Length': status.size
             });
 
-            fs.createReadStream(filePath).pipe(res);
+            fs.createReadStream(file_path).pipe(response);
         });
     }
 
-    function buildFrame(data) {
+    function build_frame(data) {
         const length = data.length;
         let header;
 
@@ -80,49 +98,61 @@ module.exports = function(context, args) {
         return Buffer.concat([header, data]);
     }
 
-    function parseFrame(buffer) {
-        if (buffer.length < 2) return null;
+    function parse_frame(buffer) {
+        if (buffer.length < 2) {
+            return null;
+        }
 
-        const secondByte = buffer[1];
-        const masked = (secondByte & 0x80) === 0x80;
-        let dataLength = secondByte & 0x7f;
+        const second_byte = buffer[1];
+        const is_masked = (second_byte & 0x80) === 0x80;
+        let data_length = second_byte & 0x7f;
         let offset = 2;
 
-        if (dataLength === 126) {
-            if (buffer.length < 4) return null;
-            dataLength = buffer.readUInt16BE(2);
+        if (data_length === 126) {
+            if (buffer.length < 4) {
+                return null;
+            }
+            data_length = buffer.readUInt16BE(2);
             offset = 4;
-        } else if (dataLength === 127) {
-            if (buffer.length < 10) return null;
-            dataLength = Number(buffer.readBigUInt64BE(2));
+        } else if (data_length === 127) {
+            if (buffer.length < 10) {
+                return null;
+            }
+            data_length = Number(buffer.readBigUInt64BE(2));
             offset = 10;
         }
 
-        let maskingKey;
+        let masking_key;
 
-        if (masked) {
-            if (buffer.length < offset + 4) return null;
-            maskingKey = buffer.subarray(offset, offset + 4);
+        if (is_masked) {
+            if (buffer.length < offset + 4) {
+                return null;
+            }
+            masking_key = buffer.subarray(offset, offset + 4);
             offset += 4;
-        }   
+        }
 
-        if (buffer.length < offset + dataLength) return null;
+        if (buffer.length < offset + data_length) {
+            return null;
+        }
 
-        const frameData = Buffer.from(
-            buffer.subarray(offset, offset + dataLength)
+        const frame_data = Buffer.from(
+            buffer.subarray(offset, offset + data_length)
         );
 
-        if (masked && maskingKey) {
-            for (let i = 0; i < frameData.length; i++) {
-                frameData[i] ^= maskingKey[i % 4];
+        if (is_masked) {
+            if (masking_key) {
+                for (let index = 0; index < frame_data.length; index++) {
+                    frame_data[index] ^= masking_key[index % 4];
+                }
             }
         }
 
-        return frameData;
+        return frame_data;
     }
 
-    function startServer(port = 8080) {
-        const server = http.createServer(serveStatic);
+    function start_server(port = 8080) {
+        const server = http.createServer(serve_static);
 
         server.on('upgrade', function (request, socket) {
             const key = request.headers['sec-websocket-key'];
@@ -132,21 +162,21 @@ module.exports = function(context, args) {
                 return;
             }
 
-            const acceptKey = crypto
+            const accept_key = crypto
                 .createHash('sha1')
-                .update(key + GUID)
+                .update(key + guid)
                 .digest('base64');
 
             const headers = [
                 'HTTP/1.1 101 Switching Protocols',
                 'Upgrade: websocket',
                 'Connection: Upgrade',
-                'Sec-WebSocket-Accept: ' + acceptKey
+                'Sec-WebSocket-Accept: ' + accept_key
             ];
 
             socket.write(headers.join('\r\n') + '\r\n\r\n');
 
-            const shell = pty.spawn(shellName, [], {
+            const shell = pty.spawn(shell_name, [], {
                 name: 'xterm-color',
                 cols: 80,
                 rows: 24,
@@ -156,21 +186,27 @@ module.exports = function(context, args) {
 
             shell.onData(function (data) {
                 if (!socket.destroyed) {
-                    socket.write(buildFrame(Buffer.from(data)));
+                    socket.write(build_frame(Buffer.from(data)));
                 }
             });
 
             socket.on('data', function (buffer) {
-                const message = parseFrame(buffer);
-                if (!message) return;
+                const message = parse_frame(buffer);
+                if (!message) {
+                    return;
+                }
 
                 const data = message.toString();
 
                 if (data.startsWith('{')) {
                     try {
                         const parsed = JSON.parse(data);
-                        if (parsed.type === 'resize' && parsed.cols && parsed.rows) {
-                            shell.resize(parsed.cols, parsed.rows);
+                        if (parsed.type === 'resize') {
+                            if (parsed.cols) {
+                                if (parsed.rows) {
+                                    shell.resize(parsed.cols, parsed.rows);
+                                }
+                            }
                         }
                     } catch (error) {}
                     return;
@@ -182,7 +218,7 @@ module.exports = function(context, args) {
             function cleanup() {
                 try {
                     shell.kill();
-                } catch (e) {}
+                } catch (error) {}
             }
 
             socket.on('close', cleanup);
@@ -195,7 +231,7 @@ module.exports = function(context, args) {
 
         server.once('error', function (error) {
             if (error.code === 'EADDRINUSE') {
-                startServer(port + 1);
+                start_server(port + 1);
                 return;
             }
 
@@ -203,12 +239,17 @@ module.exports = function(context, args) {
         });
 
         server.listen(port, '0.0.0.0', function () {
-            const networkDetails = Object.values(os.networkInterfaces()).flat();
+            const network_details = Object.values(os.networkInterfaces()).flat();
 
-            const network = networkDetails.find(
-                details =>
-                    details.family === 'IPv4' &&
-                    details.internal === false
+            const network = network_details.find(
+                function(details) {
+                    if (details.family === 'IPv4') {
+                        if (details.internal === false) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
             );
 
             const assigned = server.address().port;
@@ -219,22 +260,22 @@ module.exports = function(context, args) {
                 address = network.address;
             }
 
-            const coralGreen = '\x1b[38;5;167m';
-            const lowerGreen = '\x1b[38;2;180;210;170m';
-            const dimWhite = '\x1b[2m';
+            const coral_green = '\x1b[38;5;167m';
+            const lower_green = '\x1b[38;2;180;210;170m';
+            const dim_white = '\x1b[2m';
             const reset = '\x1b[0m';
             const bold = '\x1b[1m';
 
             console.log(`
 ${bold}Shell Exposed HTTP${reset}
-${dimWhite}Status:${coralGreen} Online ${reset}
-${dimWhite}Port:${coralGreen} ${assigned}${reset}
+${dim_white}Status:${coral_green} Online ${reset}
+${dim_white}Port:${coral_green} ${assigned}${reset}
 
-${lowerGreen}Local:${reset} http://localhost:${coralGreen}${assigned}${reset}
-${lowerGreen}Network:${reset} http://${address}:${coralGreen}${assigned}${reset}
+${lower_green}Local:${reset} http://localhost:${coral_green}${assigned}${reset}
+${lower_green}Network:${reset} http://${address}:${coral_green}${assigned}${reset}
             `);
         });
     }
 
-    startServer();
+    start_server();
 };
