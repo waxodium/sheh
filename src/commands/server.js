@@ -27,13 +27,7 @@ module.exports = function(context, arguments_list) {
 
     function serve_static(request, response) {
         const request_url = request.url.split('?')[0];
-        let safe_path = "";
-
-        if (request_url === '/') {
-            safe_path = '/index.html';
-        } else {
-            safe_path = request_url;
-        }
+        const safe_path = request_url === '/' ? '/index.html' : request_url;
 
         const relative_path = path.normalize(safe_path).replace(/^(\/|\\)+/, '');
         const file_path = path.join(public_directory, relative_path);
@@ -45,26 +39,14 @@ module.exports = function(context, arguments_list) {
         }
 
         fs.stat(file_path, function(error, status) {
-            if (error) {
-                response.writeHead(404);
-                response.end('404 Not Found');
-                return;
-            }
-
-            if (!status.isFile()) {
+            if (error || !status.isFile()) {
                 response.writeHead(404);
                 response.end('404 Not Found');
                 return;
             }
 
             const extension = path.extname(file_path).toLowerCase();
-            let content_type = "";
-
-            if (mime_types[extension]) {
-                content_type = mime_types[extension];
-            } else {
-                content_type = 'application/octet-stream';
-            }
+            const content_type = mime_types[extension] || 'application/octet-stream';
 
             response.writeHead(200, {
                 'Content-Type': content_type,
@@ -83,17 +65,21 @@ module.exports = function(context, arguments_list) {
             header = Buffer.alloc(2);
             header[0] = 0x81;
             header[1] = length;
-        } else if (length <= 65535) {
+            return Buffer.concat([header, data]);
+        }
+
+        if (length <= 65535) {
             header = Buffer.alloc(4);
             header[0] = 0x81;
             header[1] = 126;
             header.writeUInt16BE(length, 2);
-        } else {
-            header = Buffer.alloc(10);
-            header[0] = 0x81;
-            header[1] = 127;
-            header.writeBigUInt64BE(BigInt(length), 2);
+            return Buffer.concat([header, data]);
         }
+
+        header = Buffer.alloc(10);
+        header[0] = 0x81;
+        header[1] = 127;
+        header.writeBigUInt64BE(BigInt(length), 2);
 
         return Buffer.concat([header, data]);
     }
@@ -109,15 +95,11 @@ module.exports = function(context, arguments_list) {
         let offset = 2;
 
         if (data_length === 126) {
-            if (buffer.length < 4) {
-                return null;
-            }
+            if (buffer.length < 4) return null;
             data_length = buffer.readUInt16BE(2);
             offset = 4;
         } else if (data_length === 127) {
-            if (buffer.length < 10) {
-                return null;
-            }
+            if (buffer.length < 10) return null;
             data_length = Number(buffer.readBigUInt64BE(2));
             offset = 10;
         }
@@ -125,9 +107,7 @@ module.exports = function(context, arguments_list) {
         let masking_key;
 
         if (is_masked) {
-            if (buffer.length < offset + 4) {
-                return null;
-            }
+            if (buffer.length < offset + 4) return null;
             masking_key = buffer.subarray(offset, offset + 4);
             offset += 4;
         }
@@ -140,11 +120,9 @@ module.exports = function(context, arguments_list) {
             buffer.subarray(offset, offset + data_length)
         );
 
-        if (is_masked) {
-            if (masking_key) {
-                for (let index = 0; index < frame_data.length; index++) {
-                    frame_data[index] ^= masking_key[index % 4];
-                }
+        if (is_masked && masking_key) {
+            for (let index = 0; index < frame_data.length; index++) {
+                frame_data[index] ^= masking_key[index % 4];
             }
         }
 
@@ -192,21 +170,15 @@ module.exports = function(context, arguments_list) {
 
             socket.on('data', function (buffer) {
                 const message = parse_frame(buffer);
-                if (!message) {
-                    return;
-                }
+                if (!message) return;
 
                 const data = message.toString();
 
                 if (data.startsWith('{')) {
                     try {
                         const parsed = JSON.parse(data);
-                        if (parsed.type === 'resize') {
-                            if (parsed.cols) {
-                                if (parsed.rows) {
-                                    shell.resize(parsed.cols, parsed.rows);
-                                }
-                            }
+                        if (parsed.type === 'resize' && parsed.cols && parsed.rows) {
+                            shell.resize(parsed.cols, parsed.rows);
                         }
                     } catch (error) {}
                     return;
@@ -242,23 +214,11 @@ module.exports = function(context, arguments_list) {
             const network_details = Object.values(os.networkInterfaces()).flat();
 
             const network = network_details.find(
-                function(details) {
-                    if (details.family === 'IPv4') {
-                        if (details.internal === false) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
+                details => details.family === 'IPv4' && details.internal === false
             );
 
             const assigned = server.address().port;
-
-            let address = 'localhost';
-
-            if (network) {
-                address = network.address;
-            }
+            const address = network ? network.address : 'localhost';
 
             const coral_green = '\x1b[38;5;167m';
             const lower_green = '\x1b[38;2;180;210;170m';
