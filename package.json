@@ -3,6 +3,9 @@
   "version": "1.4.1",
   "description": "Shell Exposed over HTTP. Use your terminal through the browser locally",
   "main": "src/index.js",
+  "bin": {
+    "sheh": "src/index.js"
+  },
   "exports": {
     "./getshell": "./build/Release/getshell.node"
   },
