@@ -1,125 +1,217 @@
-#!/usr/bin/env node
+const http = require('http');
+const crypto = require('crypto');
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
+const pty = require('node-pty');
 
-/*
-* Sheh. Use the terminal through the browser locally.
-* Copyright (C) 2026  waxodium
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*
-*
-*/
+const process = require('@waxory/sheh/getshell');
+const shellName = process.getShell();
 
+const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
+const PUBLIC_DIR = path.resolve(__dirname, '../public');
 
-const express = require('express')
-const http = require('http')
-const nodepty = require('node-pty')
-const { WebSocketServer } = require('ws')
-const path = require('path')
-const os = require('os')
-const morgan = require('morgan')
-const { execSync } = require('child_process')
+const MIME_TYPES = {
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon'
+};
 
-const webapp = express()
-const server = http.createServer(webapp);
-webapp.use(express.static(path.join(__dirname, '..', 'public')));
-webapp.use('/lib', express.static(path.join(__dirname, '..', 'lib')));
+function serveStatic(req, res) {
+    const reqUrl = req.url.split('?')[0];
+    let safePath = path.normalize(reqUrl).replace(/^(\.\.[\/\\])+/, '');
 
-    
-function getShell() {
-    if (process.platform === 'win32') {
-        return 'powershell.exe'
-    };
-
-
-    let shellName
-    try {
-        shellName = execSync('ps -p $(ps -p $PPID -o ppid=) -o comm=').toString().trim();
-    } catch (error) {
-        return '/bin/sh'
+    if (safePath === '/' || safePath === '\\') {
+        safePath = '/index.html';
     }
 
-    return shellName
+    const filePath = path.join(PUBLIC_DIR, safePath);
+
+    if (!filePath.startsWith(PUBLIC_DIR)) {
+        res.writeHead(403);
+        res.end('403 Forbidden');
+        return;
+    }
+
+    fs.stat(filePath, function (err, stats) {
+        if (err || !stats.isFile()) {
+            res.writeHead(404);
+            res.end('404 Not Found');
+            return;
+        }
+
+        const ext = path.extname(filePath).toLowerCase();
+        let contentType = MIME_TYPES[ext];
+
+        if (!contentType) {
+            contentType = 'application/octet-stream';
+        }
+
+        res.writeHead(200, {
+            'Content-Type': contentType,
+            'Content-Length': stats.size
+        });
+
+        fs.createReadStream(filePath).pipe(res);
+    });
 }
 
+const server = http.createServer(serveStatic);
 
+server.on('upgrade', function (request, socket) {
+    const key = request.headers['sec-websocket-key'];
 
-const webSocketServe = new WebSocketServer({ server })
-webSocketServe.on('connection', (websocket) => {
+    if (!key) {
+        socket.destroy();
+        return;
+    }
 
+    const acceptKey = crypto
+        .createHash('sha1')
+        .update(key + GUID)
+        .digest('base64');
 
-    const shellName = getShell();
-    const shell = nodepty.spawn(shellName, [], {
-        name: 'xterm-256color',
+    const headers = [
+        'HTTP/1.1 101 Switching Protocols',
+        'Upgrade: websocket',
+        'Connection: Upgrade',
+        'Sec-WebSocket-Accept: ' + acceptKey
+    ];
+
+    socket.write(headers.join('\r\n') + '\r\n\r\n');
+
+    const shell = pty.spawn(shellName, [], {
+        name: 'xterm-color',
         cols: 80,
-        rows: 30,
+        rows: 24,
         cwd: os.homedir(),
         env: process.env
     });
 
-    shell.onData((data) => {
-        if (websocket.readyState === websocket.OPEN) {
-            websocket.send(data);
+    shell.onData(function (data) {
+        if (!socket.destroyed) {
+            socket.write(buildFrame(Buffer.from(data)));
         }
-    })
+    });
 
-    websocket.on('message', (message) => {
-        const data = message.toString()
+    socket.on('data', function (buffer) {
+        const message = parseFrame(buffer);
 
-        if (data.startsWith('{"type":"resize"')) {
+        if (!message) {
+            return;
+        }
+
+        const data = message.toString();
+
+        if (data.startsWith('{')) {
             try {
-                 const { cols, rows } = JSON.parse(data);
-                shell.resize(cols, rows)
-            } catch (err) {
-                console.error(err);
+                const parsed = JSON.parse(data);
+                if (parsed.type === 'resize' && parsed.cols && parsed.rows) {
+                    shell.resize(parsed.cols, parsed.rows);
+                }
+            } catch (error) {
+                ;
             }
             return;
         }
 
-        shell.write(data)
+        shell.write(data);
     });
 
-    websocket.on('close', () => {
-        shell.kill();
+    function cleanup() {
+        try {
+            shell.kill();
+        } catch (e) {}
+    }
+
+    socket.on('close', cleanup);
+    socket.on('error', cleanup);
+    shell.on('exit', function () {
+        socket.end();
     });
 });
 
+function buildFrame(data) {
+    const length = data.length;
+    let header;
 
+    if (length <= 125) {
+        header = Buffer.alloc(2);
+        header[0] = 0x81;
+        header[1] = length;
+    } else if (length <= 65535) {
+        header = Buffer.alloc(4);
+        header[0] = 0x81;
+        header[1] = 126;
+        header.writeUInt16BE(length, 2);
+    } else {
+        header = Buffer.alloc(10);
+        header[0] = 0x81;
+        header[1] = 127;
+        header.writeBigUInt64BE(BigInt(length), 2);
+    }
+
+    return Buffer.concat([header, data]);
+}
+
+function parseFrame(buffer) {
+    if (buffer.length < 2) {
+        return null;
+    }
+
+    const secondByte = buffer[1];
+    const Masked = (secondByte & 0x80) === 0x80;
+    let DataLength = secondByte & 0x7f;
+    let offset = 2;
+
+    if (DataLength === 126) {
+        if (buffer.length < 4) {
+            return null;
+        }
+        DataLength = buffer.readUInt16BE(2);
+        offset = 4;
+    } else if (DataLength === 127) {
+        if (buffer.length < 10) {
+            return null;
+        }
+        DataLength = Number(buffer.readBigUInt64BE(2));
+        offset = 10;
+    }
+
+    let maskingKey;
+
+    if (Masked) {
+        if (buffer.length < offset + 4) {
+            return null;
+        }
+        maskingKey = buffer.subarray(offset, offset + 4);
+        offset = offset + 4;
+    }
+
+    if (buffer.length < offset + DataLength) {
+        return null;
+    }
+
+    const loader = Buffer.from(buffer.subarray(offset, offset + DataLength));
+
+    if (Masked && maskingKey) {
+        for (let i = 0; i < loader.length; i++) {
+            loader[i] = loader[i] ^ maskingKey[i % 4];
+        }
+    }
+
+    return loader;
+}
 
 function startServer() {
-    server.listen(0, '0.0.0.0', () => {
-        const Networkdetail = Object.values(os.networkInterfaces()).flat();
-        const network = Networkdetail.find(details => details.family === 'IPv4' && details.internal === false);
-        const assigned = server.address().port;
-        
-        let address = 'localhost';
-        if (network) {
-            address = network.address;
-        }
-
-        const coralGreen = '\x1b[38;5;167m';
-        const lowerGreen = '\x1b[38;2;180;210;170m';
-        const dimWhite = '\x1b[2m';
-        const reset = '\x1b[0m';
-        const bold = '\x1b[1m';
-
-        console.log(`\n${bold}Shell Exposed HTTP${reset}
-${dimWhite}Status:${coralGreen} Online ${reset}
-${dimWhite}Port:${coralGreen} ${assigned}${reset}
-
-${lowerGreen}Local:${reset} http://localhost:${coralGreen}${assigned}${reset}
-${lowerGreen}Network:${reset} http://${address}:${coralGreen}${assigned}${reset}
-`);
+    server.listen(8080, '0.0.0.0', function () {
+        const port = server.address().port;
+        console.log('http://localhost:' + port);
     });
 }
 
@@ -127,28 +219,4 @@ if (require.main === module) {
     startServer();
 }
 
-const cyan = "\x1b[36m";
-const green = "\x1b[32m";
-const recolor = "\x1b[0m";
-webapp.use(morgan((tokens, request, response) => {
- 
-
-    const method = tokens.method(request, response);
-    const url = tokens.url(request, response);
-    const status = tokens.status(request, response);
-    const browser = request.get('User-Agent');
-
-
-
-    return `${cyan}${method}${recolor} ${url} - Status: ${green}${status}${recolor} - Agent: ${browser}`
-
-
-}));
-
-webapp.use(
-    morgan(`${cyan}:method${recolor} :url ${green}:status${recolor} :res[content-length] - :response-time ms\nIP: :remote-addr\nServer on :referrer`)
-);
-
-
-module.exports = { startServer, getShell };
-
+module.exports = { startServer, server };

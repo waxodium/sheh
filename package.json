@@ -27,5 +27,11 @@
   "homepage": "https://github.com/waxodium/sheh#readme",
   "author": "waxodium",
   "license": "GPL-3.0",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "node-pty": "^1.1.0"
+  },
+  "allowScripts": {
+    "node-pty@1.1.0": true
+  }
 }
