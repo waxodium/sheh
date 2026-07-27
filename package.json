@@ -1,0 +1,31 @@
+{
+  "name": "@waxory/sheh",
+  "version": "1.4.1",
+  "description": "Shell Exposed over HTTP. Use your terminal through the browser locally",
+  "main": "src/index.js",
+  "exports": {
+    "./getshell": "./build/Release/getshell.node"
+  },
+  "keywords": [
+    "terminal",
+    "browser",
+    "websocket",
+    "shell",
+    "xterm",
+    "local",
+    "web-terminal",
+    "cli",
+    "tty"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/waxodium/sheh"
+  },
+  "bugs": {
+    "url": "https://github.com/waxodium/sheh/issues"
+  },
+  "homepage": "https://github.com/waxodium/sheh#readme",
+  "author": "waxodium",
+  "license": "GPL-3.0",
+  "type": "commonjs"
+}

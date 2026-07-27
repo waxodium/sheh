@@ -1,4 +1,6 @@
-// sheh version 2 addons, c & nodejs
+#include <node_api.h>
+
+extern "C" {
 
 #include <stdio.h>
 #include <string.h>
@@ -10,7 +12,9 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <tlhelp32.h>
+
 typedef DWORD pid_t;
+
 #else
 #include <unistd.h>
 #include <sys/types.h>
@@ -38,7 +42,6 @@ static int getProcess(pid_t pid, char *out, size_t size) {
 
 
 #elif defined(__APPLE__)
-    // I don't know how to install libprocps
     struct kinfo_proc kp;
     size_t len = sizeof(kp);
 
@@ -148,12 +151,25 @@ char *getShell(void) {
 }
 
 
-int main(void) {
+napi_value GetShellJS(napi_env env, napi_callback_info info) {
     char *name = getShell();
+    napi_value result;
 
-    if (name) printf("%s\n", name);
-    else
-        printf("Unknown\n");
+    if (name) {
+        napi_create_string_utf8(env, name, NAPI_AUTO_LENGTH, &result);
+    } else {
+        napi_create_string_utf8(env, "Unknown", NAPI_AUTO_LENGTH, &result);
+    }
+    return result;
+}
 
-    return 0;
+napi_value Init(napi_env env, napi_value exports) {
+    napi_value fn;
+    napi_create_function(env, "getShell", NAPI_AUTO_LENGTH, GetShellJS, NULL, &fn);
+    napi_set_named_property(env, exports, "getShell", fn);
+    return exports;
+}
+
+NAPI_MODULE(NODE_GYP_MODULE_NAME, Init)
+
 }
