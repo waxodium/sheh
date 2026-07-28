@@ -39,13 +39,13 @@ CFLAGS_CC_Debug := \
 	-std=gnu++20
 
 INCS_Debug := \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/include/node \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/src \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/openssl/config \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/openssl/openssl/include \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/uv/include \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/zlib \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/v8/include
+	-I/home/waxodium/.cache/node-gyp/26.5.0/include/node \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/src \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/config \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/openssl/include \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/uv/include \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/zlib \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/v8/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=getshell' \
@@ -82,16 +82,16 @@ CFLAGS_CC_Release := \
 	-std=gnu++20
 
 INCS_Release := \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/include/node \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/src \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/openssl/config \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/openssl/openssl/include \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/uv/include \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/zlib \
-	-I/home/waxodium/.cache/node-gyp/24.18.0/deps/v8/include
+	-I/home/waxodium/.cache/node-gyp/26.5.0/include/node \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/src \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/config \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/openssl/include \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/uv/include \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/zlib \
+	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/v8/include
 
 OBJS := \
-	$(obj).target/$(TARGET)/src/getshell.o
+	$(obj).target/$(TARGET)/cpp/getshell.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)

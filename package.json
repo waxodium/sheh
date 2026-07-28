@@ -30,11 +30,11 @@
   "homepage": "https://github.com/waxodium/sheh#readme",
   "author": "waxodium",
   "license": "GPL-3.0",
-  "type": "commonjs",
-  "dependencies": {
-    "node-pty": "^1.1.0"
-  },
+  "type": "commonjs", 
   "allowScripts": {
     "node-pty@1.1.0": true
+  },
+  "scripts": {
+    "postinstall": "node scripts/install-pty.js"
   }
 }
