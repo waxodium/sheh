@@ -87,7 +87,7 @@ INCS_Release := \
 	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/v8/include
 
 OBJS := \
-	$(obj).target/$(TARGET)/cpp/getshell.o
+	$(obj).target/$(TARGET)/addons/getshell.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)

@@ -27,7 +27,13 @@ module.exports = function(context, arguments_list) {
 
     function serve_static(request, response) {
         const request_url = request.url.split('?')[0];
-        const safe_path = request_url === '/' ? '/index.html' : request_url;
+        let safe_path;
+        if (request_url === '/') {
+            safe_path = '/index.html';
+        } else {
+            safe_path = request_url;
+        }
+
 
         const relative_path = path.normalize(safe_path).replace(/^(\/|\\)+/, '');
         const file_path = path.join(public_directory, relative_path);
@@ -218,7 +224,13 @@ module.exports = function(context, arguments_list) {
             );
 
             const assigned = server.address().port;
-            const address = network ? network.address : 'localhost';
+            let address;
+            if (network) {
+                address = network.address;
+            } else {
+                address = 'localhost';
+            }
+
 
             const coral_green = '\x1b[38;5;167m';
             const lower_green = '\x1b[38;2;180;210;170m';

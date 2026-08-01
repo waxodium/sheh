@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "getshell",
-      "sources": [ "cpp/getshell.cpp" ]
+      "sources": [ "addons/getshell.cpp" ]
     }
   ]
 }

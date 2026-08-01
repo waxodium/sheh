@@ -498,17 +498,7 @@
     "ossfuzz": "false",
     "nodedir": "/home/waxodium/.cache/node-gyp/24.16.0",
     "python": "/run/current-system/sw/bin/python3",
-    "standalone_static_library": 1,
-    "global_prefix": "/home/waxodium/.npm-packages",
-    "node_gyp": "/nix/store/d92cn3k9m5jbbyaysn723bk7vmaxnb47-nodejs-slim-24.16.0-npm/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js",
-    "user_agent": "npm/11.13.0 node/v24.16.0 linux x64 workspaces/false",
-    "prefix": "/home/waxodium/.npm-packages",
-    "npm_version": "11.13.0",
-    "init_module": "/home/waxodium/.npm-init.js",
-    "globalconfig": "/home/waxodium/.npm-packages/etc/npmrc",
-    "local_prefix": "/home/waxodium/Documents/js/sheh",
-    "cache": "/home/waxodium/.npm",
-    "userconfig": "/home/waxodium/.npmrc"
+    "standalone_static_library": 1
   },
   "target_defaults": {
     "include_dirs": [],
