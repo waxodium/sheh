@@ -11,8 +11,6 @@ DEFS_Debug := \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D__STDC_FORMAT_MACROS' \
-	'-DOPENSSL_NO_PINSHARED' \
-	'-DOPENSSL_THREADS' \
 	'-DBUILDING_NODE_EXTENSION' \
 	'-DDEBUG' \
 	'-D_DEBUG'
@@ -39,13 +37,13 @@ CFLAGS_CC_Debug := \
 	-std=gnu++20
 
 INCS_Debug := \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/include/node \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/src \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/config \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/openssl/include \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/uv/include \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/zlib \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/v8/include
+	-I/home/waxodium/.cache/node-gyp/24.16.0/include/node \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/src \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/config \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/openssl/include \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/uv/include \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/zlib \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/v8/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=getshell' \
@@ -56,8 +54,6 @@ DEFS_Release := \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D__STDC_FORMAT_MACROS' \
-	'-DOPENSSL_NO_PINSHARED' \
-	'-DOPENSSL_THREADS' \
 	'-DBUILDING_NODE_EXTENSION'
 
 # Flags passed to all source files.
@@ -82,13 +78,13 @@ CFLAGS_CC_Release := \
 	-std=gnu++20
 
 INCS_Release := \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/include/node \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/src \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/config \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/openssl/openssl/include \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/uv/include \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/zlib \
-	-I/home/waxodium/.cache/node-gyp/26.5.0/deps/v8/include
+	-I/home/waxodium/.cache/node-gyp/24.16.0/include/node \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/src \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/config \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/openssl/include \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/uv/include \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/zlib \
+	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/v8/include
 
 OBJS := \
 	$(obj).target/$(TARGET)/cpp/getshell.o

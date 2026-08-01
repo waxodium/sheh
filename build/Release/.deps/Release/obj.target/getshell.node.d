@@ -1,1 +1,1 @@
-cmd_Release/obj.target/getshell.node := g++ -o Release/obj.target/getshell.node -shared -pthread -rdynamic -m64  -Wl,-soname=getshell.node -Wl,--start-group Release/obj.target/getshell/cpp/getshell.o -Wl,--end-group 
+cmd_Release/obj.target/getshell.node := c++ -o Release/obj.target/getshell.node -shared -pthread -rdynamic -m64  -Wl,-soname=getshell.node -Wl,--start-group Release/obj.target/getshell/cpp/getshell.o -Wl,--end-group 
