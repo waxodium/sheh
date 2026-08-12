@@ -31,16 +31,11 @@
   "author": "waxodium",
   "license": "GPL-3.0",
   "type": "commonjs",
-  "config": {
-    "android_ndk_path": ""
-  },
   "optionalDependencies": {
-    "node-pty": "^1.0.0",
-    "node-pty-android-arm64": "npm:node-pty-android-arm64@^1.0.0"
+    "node-pty": "^1.0.0"
   },
   "allowScripts": {
-    "node-pty@1.1.0": true,
-    "node-pty-android-arm64@^1.0.0": true
+    "node-pty@1.1.0": true
   }
 
 }

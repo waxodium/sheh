@@ -37,13 +37,13 @@ CFLAGS_CC_Debug := \
 	-std=gnu++20
 
 INCS_Debug := \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/include/node \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/src \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/config \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/openssl/include \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/uv/include \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/zlib \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/v8/include
+	-I/home/waxodium/.cache/node-gyp/26.7.0/include/node \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/src \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/openssl/config \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/openssl/openssl/include \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/uv/include \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/zlib \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/v8/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=getshell' \
@@ -65,6 +65,7 @@ CFLAGS_Release := \
 	-Wno-unused-parameter \
 	-m64 \
 	-O3 \
+	 -flto=4 -ffat-lto-objects  \
 	-fno-omit-frame-pointer
 
 # Flags passed to only C files.
@@ -78,13 +79,13 @@ CFLAGS_CC_Release := \
 	-std=gnu++20
 
 INCS_Release := \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/include/node \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/src \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/config \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/openssl/openssl/include \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/uv/include \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/zlib \
-	-I/home/waxodium/.cache/node-gyp/24.16.0/deps/v8/include
+	-I/home/waxodium/.cache/node-gyp/26.7.0/include/node \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/src \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/openssl/config \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/openssl/openssl/include \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/uv/include \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/zlib \
+	-I/home/waxodium/.cache/node-gyp/26.7.0/deps/v8/include
 
 OBJS := \
 	$(obj).target/$(TARGET)/addons/getshell.o
@@ -121,7 +122,8 @@ LDFLAGS_Debug := \
 LDFLAGS_Release := \
 	-pthread \
 	-rdynamic \
-	-m64
+	-m64 \
+	 -flto=4 -ffat-lto-objects 
 
 LIBS :=
 
