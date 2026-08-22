@@ -11,7 +11,9 @@
   "description": "Shell Exposed over HTTP. Use your terminal through the browser locally",
   "main": "server.js",
   "scripts": {
-    "dev": "node main.js"
+    "check": "node --check main.js && node --check src/child.js && node --check src/server.js && npm test",
+    "dev": "node main.js",
+    "test": "node --test"
   },
   "bin": {
     "sheh": "./main.js"

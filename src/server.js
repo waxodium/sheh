@@ -122,6 +122,8 @@ ${dimWhite}Port:${coralGreen} ${assigned}${reset}
 ${lowerGreen}Local:${reset} http://localhost:${coralGreen}${assigned}${reset}
 ${networkAddress}`);
     });
+
+    return server;
 }
 
 if (require.main === module) {
