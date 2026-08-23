@@ -4,6 +4,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const pty = require('node-pty');
+const { exec } = require('child_process');
 
 const process_module = require('@waxory/sheh/getshell');
 const shell_name = process_module.getShell();
@@ -246,6 +247,10 @@ ${dim_white}Port:${coral_green} ${assigned}${reset}
 ${lower_green}Local:${reset} http://localhost:${coral_green}${assigned}${reset}
 ${lower_green}Network:${reset} http://${address}:${coral_green}${assigned}${reset}
             `);
+            
+            exec(`xdg-open http://localhost:${assigned}`);
+
+
         });
     }
 
