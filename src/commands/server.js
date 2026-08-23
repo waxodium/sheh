@@ -4,7 +4,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const pty = require('node-pty');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 
 const process_module = require('@waxory/sheh/getshell');
 const shell_name = process_module.getShell();
@@ -21,6 +21,42 @@ const mime_types = {
     '.svg': 'image/svg+xml',
     '.ico': 'image/x-icon'
 };
+
+
+function open_browser(url) {
+    const { execFile } = require('child_process');
+
+    if (process.platform === 'win32') {
+        execFile('cmd', ['/c', 'start', '', url]);
+        return;
+    }
+
+    if (process.platform === 'darwin') {
+        execFile('open', [url]);
+        return;
+    }
+
+    const openers = [
+        ['xdg-open', [url]],
+        ['gio', ['open', url]],
+        ['gnome-open', [url]],
+        ['kde-open6', [url]],
+        ['kde-open5', [url]],
+        ['exo-open', [url]]
+    ];
+
+    function try_open(index) {
+        if (index >= openers.length) return;
+        const [command, args] = openers[index];
+        const child = execFile(command, args);
+
+        child.on('error', () => {
+            try_open(index + 1);
+        });
+    }
+
+    try_open(0);
+}
 
 module.exports = function(context, arguments_list) {
 
@@ -247,9 +283,8 @@ ${dim_white}Port:${coral_green} ${assigned}${reset}
 ${lower_green}Local:${reset} http://localhost:${coral_green}${assigned}${reset}
 ${lower_green}Network:${reset} http://${address}:${coral_green}${assigned}${reset}
             `);
-            
-            exec(`xdg-open http://localhost:${assigned}`);
-
+        
+            open_browser(`http://localhost:${assigned}`);
 
         });
     }

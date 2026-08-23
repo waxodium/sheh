@@ -24,7 +24,6 @@ Commands:`);
         console.log(`  ${name.padEnd(width + 4)}${descriptions[name] || ""}`);
     }
 
-    console.log(`\nRun 'sheh help <command>' for more information.`);
 
 
 }
