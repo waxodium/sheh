@@ -1,0 +1,5 @@
+*.o linguist-detectable=false
+*.node linguist-detectable=false
+
+*.gyp linguist-detectable=false
+*.gypi linguist-detectable=false
