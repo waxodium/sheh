@@ -1,1 +1,0 @@
-cmd_Release/getshell.node := ln -f "Release/obj.target/getshell.node" "Release/getshell.node" 2>/dev/null || (rm -rf "Release/getshell.node" && cp -af "Release/obj.target/getshell.node" "Release/getshell.node")

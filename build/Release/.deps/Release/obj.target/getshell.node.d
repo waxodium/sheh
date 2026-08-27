@@ -1,1 +1,0 @@
-cmd_Release/obj.target/getshell.node := g++ -o Release/obj.target/getshell.node -shared -pthread -rdynamic -m64 -flto=4 -ffat-lto-objects   -Wl,-soname=getshell.node -Wl,--start-group Release/obj.target/getshell/addons/getshell.o -Wl,--end-group 
