@@ -1,20 +1,13 @@
 {
-  "dependencies": {
-    "commander": "^14.0.3",
-    "express": "^5.2.1",
-    "morgan": "^1.10.1",
-    "node-pty": "^1.1.0",
-    "ws": "^8.20.0"
-  },
   "name": "@waxory/sheh",
   "version": "1.4.1",
   "description": "Shell Exposed over HTTP. Use your terminal through the browser locally",
-  "main": "server.js",
-  "scripts": {
-    "dev": "node main.js"
-  },
+  "main": "src/index.js",
   "bin": {
-    "sheh": "./main.js"
+    "sheh": "src/index.js"
+  },
+  "exports": {
+    "./getshell": "./build/Release/getshell.node"
   },
   "keywords": [
     "terminal",
@@ -22,10 +15,8 @@
     "websocket",
     "shell",
     "xterm",
-    "node-pty",
     "local",
     "web-terminal",
-    "interactive",
     "cli",
     "tty"
   ],
@@ -39,5 +30,12 @@
   "homepage": "https://github.com/waxodium/sheh#readme",
   "author": "waxodium",
   "license": "GPL-3.0",
-  "type": "commonjs"
+  "type": "commonjs",
+  "optionalDependencies": {
+    "node-pty": "^1.0.0"
+  },
+  "allowScripts": {
+    "node-pty@1.1.0": true
+  }
+
 }
