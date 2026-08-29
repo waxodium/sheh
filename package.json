@@ -1,6 +1,6 @@
 {
   "name": "@waxory/sheh",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description": "Shell Exposed over HTTP. Use your terminal through the browser locally",
   "main": "src/index.js",
   "bin": {

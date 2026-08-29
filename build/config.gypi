@@ -546,7 +546,20 @@
     "v8_enable_v8_checks": 0,
     "nodedir": "/home/waxodium/.cache/node-gyp/26.7.0",
     "python": "/usr/bin/python3",
-    "standalone_static_library": 1
+    "standalone_static_library": 1,
+    "global_ignore_file": "/home/waxodium/.npm-packages/etc/npmignore",
+    "global_prefix": "/home/waxodium/.npm-packages",
+    "node_gyp": "/usr/lib/node_modules/node-gyp/bin/node-gyp.js",
+    "allow_scripts": "",
+    "user_agent": "npm/12.0.2 node/v26.7.0 linux x64 workspaces/false",
+    "prefix": "/home/waxodium/.npm-packages",
+    "npm_version": "12.0.2",
+    "android_ndk_path": "",
+    "init_module": "/home/waxodium/.npm-init.js",
+    "globalconfig": "/etc/npmrc",
+    "local_prefix": "/home/waxodium/Documents/js/sheh",
+    "cache": "/home/waxodium/.npm",
+    "userconfig": "/home/waxodium/.npmrc"
   },
   "target_defaults": {
     "include_dirs": [],
