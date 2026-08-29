@@ -59,7 +59,7 @@ Commands:
   shell           Print sheh detected Command line interpreter
 ```
 
-[Visit sheh wiki](https://github.com/waxodium/sheh/wiki) for more documentations and CLI usage
+[Visit sheh wiki](https://github.com/waxodium/sheh/wiki/Sheh-Command-Lines) for more documentations on CLI usage
 
 ---
 
