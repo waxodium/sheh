@@ -46,15 +46,17 @@ npm install -g @waxory/sheh
 
 ## Usage
 
-Launching ***S**hell **E**xposed **H**TTP*...
-
 ```bash
-Usage: sheh <command> [<args>]
+Usage: sheh [global-options] <command> [options] [<args>]
+
+Global Options:
+  --help, -h                Show help information
+  --version, -v             Dispaly Shell Exposed HTTP version
 
 Commands:
-  help      Display help and manual
-  server    Serves shell to a localhost
-  shell     Print the current running shell
+  help            Display available commands & options
+  server          Starts the local server instance, default: 8080
+  shell           Print sheh detected Command line interpreter
 ```
 
 [Visit sheh wiki](https://github.com/waxodium/sheh/wiki) for more documentations and CLI usage

@@ -3,4 +3,3 @@
 
 *.gyp linguist-detectable=false
 *.gypi linguist-detectable=false
-*Makefile linguist-detectable=false
