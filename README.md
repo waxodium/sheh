@@ -42,6 +42,30 @@ Get via the node package manager registry.
 npm install -g @waxory/sheh
 ```
 
+### Build from source
+
+Linux build tool requirements: 
+- g++, python3, make, git, node & npm
+
+Windows build tool requirements:
+- MSVC, python3, git, node & npm
+
+#### Building with node-gyp installed globally:
+```
+npm install -g node-gyp
+git clone https://github.com/waxodium/sheh && cd sheh
+npm install
+```
+
+then install sheh globally :
+```
+npm install -g .
+```
+
+
+
+
+
 ---
 
 ## Usage
@@ -79,3 +103,4 @@ Sheh are always welcome for cooperating. Contributors can contribute through by 
 
 ## LICENSE
 Sheh (**Sh**ell **E**xposed **H**TTP) is [GPL-3.0](https://github.com/waxodium/sheh/blob/main/LICENSE) Licensed
+

@@ -9,6 +9,9 @@
   "exports": {
     "./getshell": "./build/Release/getshell.node"
   },
+  "scripts": {
+    "build": "node-gyp configure build"
+  },
   "keywords": [
     "terminal",
     "browser",
@@ -31,7 +34,7 @@
   "author": "waxodium",
   "license": "GPL-3.0",
   "type": "commonjs",
-  "optionalDependencies": {
+  "dependencies": {
     "node-pty": "^1.0.0"
   },
   "allowScripts": {
