@@ -3,7 +3,7 @@
 > **Sh**ell **E**xposed **H**TTP
 
 [Gotty](https://github.com/yudai/gotty) inspired.
-Sheh is a command line tool that broadcast you terminal to your browser locally and with local network. Sheh works for every Unix/Linux shells and even powershell !
+Sheh is a command line tool that broadcast your terminal to your browser locally and with local network. Sheh works for every Unix/Linux shells and even powershell !
 
 ![NPM Version](https://img.shields.io/npm/v/@waxory/sheh?color=red)
 ![javascript](https://img.shields.io/badge/language-javascript-yellow)

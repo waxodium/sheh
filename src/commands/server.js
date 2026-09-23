@@ -20,7 +20,7 @@ const mime_types = {
     '.ico': 'image/x-icon'
 };
 
-function serve_static(dir, request, response) {
+function serve_static(dir, request, response, runtimeConfig) {
     const url = request.url.split('?')[0];
     const safe_path = url === '/' ? '/index.html' : url;
     const file_path = path.join(dir, path.normalize(safe_path).replace(/^(\/|\\)+/, ''));
@@ -37,10 +37,34 @@ function serve_static(dir, request, response) {
         }
 
         const ext = path.extname(file_path).toLowerCase();
+
+        if (ext === '.html') {
+            fs.readFile(file_path, 'utf8', (error, html) => {
+                if (error) {
+                    response.writeHead(500).end('500 Internal Server Error');
+                    return;
+                }
+
+                html = html.replace(
+                    '__SHEH_RUNTIME_CONFIG__', // to index.js
+                    JSON.stringify(runtimeConfig || {})
+                );
+
+                response.writeHead(200, {
+                    'Content-Type': mime_types[ext]
+                });
+
+                response.end(html);
+            });
+
+            return;
+        }
+
         response.writeHead(200, {
             'Content-Type': mime_types[ext] || 'application/octet-stream',
             'Content-Length': stat.size
         });
+
         fs.createReadStream(file_path).pipe(response);
     });
 }
@@ -134,7 +158,9 @@ module.exports = {
         const public_dir = path.resolve(context.root, "public");
 
         function start_server(port) {
-            const server = http.createServer((req, res) => serve_static(public_dir, req, res));
+            const server = http.createServer((req, res) => 
+                serve_static(public_dir, req, res, context.runtimeConfig)
+            );
 
             server.on('upgrade', (req, socket) => {
                 const key = req.headers['sec-websocket-key'];
@@ -206,8 +232,13 @@ module.exports = {
 \x1b[38;2;180;210;170mLocal:\x1b[0m http://localhost:\x1b[38;5;167m${assigned}\x1b[0m
 \x1b[38;2;180;210;170mNetwork:\x1b[0m http://${ip}:\x1b[38;5;167m${assigned}\x1b[0m
                 `);
+                if (context.runtimeConfig.font !== "monospace") {
+                    console.log(`font: ${context.runtimeConfig.font}`);
+                }
             });
         }
+        
+
 
         start_server(Number(flags.port));
     }

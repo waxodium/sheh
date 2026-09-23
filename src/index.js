@@ -2,10 +2,30 @@
 
 const fs = require("fs");
 const path = require("path");
+const handleGlobalOptions = require("./g_options");
 
 const globalOptions = {
-    help: { type: "boolean", alias: "h", default: false, description: "Show help information" },
-    version: { type: "boolean", alias: "v", default: false, description: "Dispaly Shell Exposed HTTP version" }
+    help: {
+        type: "boolean",
+        alias: "h",
+        default: false,
+        description: "Show help information"
+    },
+
+    version: {
+        type: "boolean",
+        alias: "v",
+        default: false,
+        description: "Display Shell Exposed HTTP version"
+    },
+
+    font: {
+        type: "string",
+        alias: "f",
+        default: false,
+        metavar: "FONT",
+        description: "Change the web terminal displaying font, default: monospace"
+    }
 };
 
 const defaultOptions = {
@@ -116,11 +136,33 @@ const directory = path.join(__dirname, "commands");
 const commands = loadCommands(directory);
 
 let commandIndex = -1;
+
 for (let i = 0; i < args.length; i++) {
-    if (!args[i].startsWith("-")) {
-        commandIndex = i;
-        break;
+    const arg = args[i];
+
+    if (arg.startsWith("-")) {
+        const equalsIndex = arg.indexOf("=");
+
+        if (equalsIndex !== -1) {
+            continue;
+        }
+
+        const optionName = arg.replace(/^-+/, "");
+
+        const option = globalOptions[optionName] ||
+            Object.values(globalOptions).find(
+                config => config.alias === optionName
+            );
+
+        if (option && option.type === "string") {
+            i++;
+        }
+
+        continue;
     }
+
+    commandIndex = i;
+    break;
 }
 
 let globalArgs = [];
@@ -138,29 +180,18 @@ if (commandIndex === -1) {
 const { flags: globalFlags } = parseOptions(globalArgs, globalOptions);
 validateFlags(globalFlags, globalOptions);
 
-const context = { 
+const context = {
     root: path.resolve(__dirname, ".."),
-    globalOptions 
+    globalOptions,
+    commands,
+    commandName
 };
 
-// %%%%%%%%%%%% Global Options %%%%%%%%%%%% 
-
-if (globalFlags.help && !commandName) {
-    if (!commands.help) process.exit(1);
-    getRunner(commands.help)(context, [], {}, globalFlags);
-    process.exit(0);
-}
-
-if (globalFlags.version) {
-    const pkg = require(path.join(__dirname, "../package.json"));
-    console.log(`v${pkg.version}`);
-    process.exit(0);
-}
-
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+handleGlobalOptions(context, globalFlags);
 
 if (!commandName) {
     commandName = "server";
+    context.commandName = commandName;
 }
 
 if (commandName === "help") {

@@ -28,6 +28,7 @@ module.exports = {
             
             console.log("Global Options:");
             const globalOptions = context.globalOptions || {};
+
             for (const [key, info] of Object.entries(globalOptions)) {
                 let flag = `--${key}`;
 
@@ -35,9 +36,14 @@ module.exports = {
                     flag += `, -${info.alias}`;
                 }
 
+                if (info.metavar) {
+                    flag += ` <${info.metavar}>`;
+                }
+
                 const label = flag.padEnd(25, " ");
                 console.log(`  ${label} ${info.description}`);
             }
+
 
             console.log("\nCommands:");
             for (const [key, info] of Object.entries(COMMAND_HELP)) {
