@@ -24,7 +24,7 @@ const globalOptions = {
         alias: "f",
         default: false,
         metavar: "FONT",
-        description: "Change the web terminal displaying font, default: monospace"
+        description: "Change xterm displaying font, default: monospace"
     }
 };
 

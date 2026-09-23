@@ -75,7 +75,8 @@ Usage: sheh [global-options] <command> [options] [<args>]
 
 Global Options:
   --help, -h                Show help information
-  --version, -v             Dispaly Shell Exposed HTTP version
+  --version, -v             Display Shell Exposed HTTP version
+  --font, -f <FONT>         Change xterm displaying font, default: monospace
 
 Commands:
   help            Display available commands & options
